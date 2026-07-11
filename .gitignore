@@ -1,0 +1,12 @@
+# Python
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
+_raw_*.json
+
+# Output (keep json for pages)
+output/*.png
+
+# OS
+.DS_Store
+Thumbs.db
