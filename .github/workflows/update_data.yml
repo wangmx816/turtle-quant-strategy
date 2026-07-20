@@ -19,7 +19,6 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v6
         with:
-          # 保证后续 git push 可用 GITHUB_TOKEN
           persist-credentials: true
           fetch-depth: 0
 
@@ -32,7 +31,20 @@ jobs:
       - name: Install dependencies
         run: pip install -r requirements.txt
 
-      - name: Fetch latest quotes
+      - name: Check Tushare token
+        env:
+          TUSHARE_TOKEN: ${{ secrets.TUSHARE_TOKEN }}
+        run: |
+          if [ -z "$TUSHARE_TOKEN" ]; then
+            echo "::error::缺少 Secrets.TUSHARE_TOKEN。请到 Settings → Secrets and variables → Actions 添加。"
+            exit 1
+          fi
+          echo "TUSHARE_TOKEN is set."
+
+      - name: Fetch latest quotes (Tushare)
+        env:
+          TUSHARE_TOKEN: ${{ secrets.TUSHARE_TOKEN }}
+          DATA_SOURCE: tushare
         run: python src/data_fetch.py
 
       - name: Build dashboard outputs

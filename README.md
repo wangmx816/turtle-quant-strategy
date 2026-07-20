@@ -28,7 +28,26 @@
 | [spec_dashboard.md](spec_dashboard.md) | 静态分析看板与热力图 |
 | [spec_playground.md](spec_playground.md) | 交互式 Playground 与 CI 部署 |
 
-## 快速开始（实现后）
+## 数据源
+
+- **CI / 推荐**：Tushare Pro（需 Token）
+- **本地兜底**：东方财富（无 Token 时自动回退）
+
+### 配置 GitHub Actions 取数
+
+1. 打开仓库 **Settings → Secrets and variables → Actions**
+2. 新建 Secret：`TUSHARE_TOKEN` = 你的 [Tushare](https://tushare.pro/) token
+3. 推送代码后，在 **Actions → Daily Data Update → Run workflow** 手动跑一次
+
+本地也可临时设置：
+
+```powershell
+$env:TUSHARE_TOKEN="你的token"
+$env:DATA_SOURCE="tushare"
+python src/data_fetch.py
+```
+
+## 快速开始
 
 ```bash
 pip install -r requirements.txt
@@ -39,7 +58,7 @@ jupyter notebook notebooks/turtle_strategy_backtest.ipynb
 python generate_task4_report.py
 ```
 
-## 在线地址（部署后）
+## 在线地址
 
 - 仓库：https://github.com/wangmx816/turtle-quant-strategy
 - Playground：https://wangmx816.github.io/turtle-quant-strategy/
