@@ -2,23 +2,32 @@ name: Daily Data Update
 
 on:
   schedule:
-    - cron: '30 10 * * 1-5'
+    - cron: '30 10 * * 1-5'   # 工作日 18:30 UTC+8
   workflow_dispatch:
 
 permissions:
   contents: write
-  pages: write
-  id-token: write
+
+concurrency:
+  group: daily-data-update
+  cancel-in-progress: false
 
 jobs:
-  update-and-deploy:
+  update:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout
+        uses: actions/checkout@v6
+        with:
+          # 保证后续 git push 可用 GITHUB_TOKEN
+          persist-credentials: true
+          fetch-depth: 0
 
-      - uses: actions/setup-python@v5
+      - name: Setup Python
+        uses: actions/setup-python@v6
         with:
           python-version: '3.11'
+          cache: pip
 
       - name: Install dependencies
         run: pip install -r requirements.txt
@@ -27,27 +36,22 @@ jobs:
         run: python src/data_fetch.py
 
       - name: Build dashboard outputs
+        env:
+          MPLBACKEND: Agg
         run: python dashboard/build_dashboard.py --json-only
 
       - name: Build playground
         run: python playground/build_playground.py
 
-      - name: Commit data and HTML
+      - name: Commit and push updates
         run: |
           git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add data/ index.html playground/ output/best_params.json output/param_grid_*.csv
-          git diff --cached --quiet || git commit -m "chore: daily data update $(date +%Y-%m-%d)"
-          git push
-
-      - name: Setup Pages
-        uses: actions/configure-pages@v5
-
-      - name: Upload artifact
-        uses: actions/upload-pages-artifact@v3
-        with:
-          path: .
-
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v4
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/ index.html playground/index.html playground/assets/ \
+            output/best_params.json output/comparison.csv output/param_grid_*.csv output/summary_*.json
+          if git diff --cached --quiet; then
+            echo "No data changes to commit."
+          else
+            git commit -m "chore: daily data update $(date -u +%Y-%m-%d)"
+            git push origin HEAD:main
+          fi
