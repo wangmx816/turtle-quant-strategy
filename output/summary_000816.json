@@ -2,26 +2,26 @@
   "symbol": "000816",
   "name": "智慧农业",
   "default_metrics": {
-    "cumulative_return": -20.08,
-    "annualized_return": -22.46,
-    "max_drawdown": -23.1,
-    "sharpe_ratio": -1.54,
-    "win_rate": 0.0,
-    "trade_count": 3,
-    "stop_loss_count": 3,
-    "profit_loss_ratio": 0.0,
-    "benchmark_cumulative": -21.09,
-    "benchmark_annualized": -23.57,
-    "excess_return": 1.01,
-    "final_net_value": 0.7992,
-    "max_dd_start": "2025-09-16",
+    "cumulative_return": 11.63,
+    "annualized_return": 6.16,
+    "max_drawdown": -33.98,
+    "sharpe_ratio": 0.281,
+    "win_rate": 50.0,
+    "trade_count": 8,
+    "stop_loss_count": 8,
+    "profit_loss_ratio": 1.58,
+    "benchmark_cumulative": 27.17,
+    "benchmark_annualized": 13.95,
+    "excess_return": -15.55,
+    "final_net_value": 1.1163,
+    "max_dd_start": "2025-02-25",
     "max_dd_end": "2025-12-17"
   },
   "best_params": {
     "best_entry": 10,
     "best_exit": 5,
-    "sharpe_ratio": -0.906,
-    "annualized_return": -18.36,
-    "max_drawdown": -22.25
+    "sharpe_ratio": 0.701,
+    "annualized_return": 21.37,
+    "max_drawdown": -29.42
   }
 }
