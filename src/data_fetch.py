@@ -1,6 +1,12 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-"""A 股日线取数：默认 Tushare（CI 推荐），本地可回退东方财富。"""
+"""A 股日线取数。
+
+优先级（DATA_SOURCE=auto 时）：
+  1) akshare（免费，CI 推荐）
+  2) tushare（需 Token 且有 daily 权限）
+  3) eastmoney（本地兜底，GitHub Runner 上常失败）
+"""
 
 from __future__ import annotations
 
@@ -32,16 +38,10 @@ ADJUST_MAP = {"none": 0, "qfq": 1, "hfq": 2}
 
 
 def _normalize(df: pd.DataFrame, symbol: str, adjust: str, source: str) -> pd.DataFrame:
-    """统一输出 Schema，与历史 CSV 兼容。"""
     info = STOCKS[symbol]
     out = df.copy()
-    rename = {
-        "vol": "volume",
-        "pct_change": "pct_chg",
-    }
-    out = out.rename(columns=rename)
-    required = ["trade_date", "open", "high", "low", "close"]
-    for col in required:
+    out = out.rename(columns={"vol": "volume", "pct_change": "pct_chg"})
+    for col in ["trade_date", "open", "high", "low", "close"]:
         if col not in out.columns:
             raise RuntimeError(f"{symbol} 缺少字段: {col}")
     if "volume" not in out.columns:
@@ -78,21 +78,54 @@ def _normalize(df: pd.DataFrame, symbol: str, adjust: str, source: str) -> pd.Da
     return out
 
 
-# ---------------------------------------------------------------------------
-# Tushare
-# ---------------------------------------------------------------------------
-
 def _get_tushare_token() -> str | None:
     token = os.environ.get("TUSHARE_TOKEN") or os.environ.get("TUSHARE_PRO_TOKEN")
-    if token:
-        return token.strip()
-    return None
+    return token.strip() if token else None
 
+
+# ---------------------------------------------------------------------------
+# AkShare（CI 主源）
+# ---------------------------------------------------------------------------
+
+def fetch_via_akshare(symbol: str, adjust: str = "qfq") -> pd.DataFrame:
+    import akshare as ak
+
+    adj = "" if adjust == "none" else adjust
+    start = START_DATE.strftime("%Y%m%d")
+    end = END_DATE.strftime("%Y%m%d")
+    raw = ak.stock_zh_a_hist(
+        symbol=symbol,
+        period="daily",
+        start_date=start,
+        end_date=end,
+        adjust=adj,
+    )
+    if raw is None or raw.empty:
+        raise RuntimeError(f"akshare 无数据: {symbol}")
+
+    colmap = {
+        "日期": "trade_date",
+        "开盘": "open",
+        "收盘": "close",
+        "最高": "high",
+        "最低": "low",
+        "成交量": "volume",
+        "成交额": "amount",
+        "涨跌幅": "pct_chg",
+    }
+    df = raw.rename(columns=colmap)
+    keep = [c for c in colmap.values() if c in df.columns]
+    return _normalize(df[keep], symbol, adjust, "akshare")
+
+
+# ---------------------------------------------------------------------------
+# Tushare（需积分权限）
+# ---------------------------------------------------------------------------
 
 def fetch_via_tushare(symbol: str, adjust: str = "qfq") -> pd.DataFrame:
     token = _get_tushare_token()
     if not token:
-        raise RuntimeError("未设置 TUSHARE_TOKEN，无法使用 Tushare")
+        raise RuntimeError("未设置 TUSHARE_TOKEN")
 
     import tushare as ts
 
@@ -101,7 +134,6 @@ def fetch_via_tushare(symbol: str, adjust: str = "qfq") -> pd.DataFrame:
     end = END_DATE.strftime("%Y%m%d")
     adj = None if adjust == "none" else adjust
 
-    # 优先 pro_bar（前/后复权）；失败则退回 daily 未复权
     df = None
     try:
         df = ts.pro_bar(
@@ -113,7 +145,7 @@ def fetch_via_tushare(symbol: str, adjust: str = "qfq") -> pd.DataFrame:
             freq="D",
         )
     except Exception as exc:
-        print(f"  [warn] pro_bar 失败 ({symbol}): {exc}; 尝试 daily")
+        print(f"  [warn] pro_bar 失败 ({symbol}): {exc}")
 
     if df is None or df.empty:
         pro = ts.pro_api(token)
@@ -126,21 +158,18 @@ def fetch_via_tushare(symbol: str, adjust: str = "qfq") -> pd.DataFrame:
                         factors[["trade_date", "adj_factor"]],
                         on="trade_date",
                         how="left",
-                    )
-                    merged = merged.sort_values("trade_date")
+                    ).sort_values("trade_date")
                     merged["adj_factor"] = merged["adj_factor"].ffill().bfill()
                     latest = float(merged["adj_factor"].iloc[-1])
                     ratio = merged["adj_factor"] / latest
                     for col in ["open", "high", "low", "close"]:
                         merged[col] = merged[col] * ratio
                     df = merged
-                    print(f"  [info] {symbol} 使用 daily+adj_factor 合成{adjust}")
             except Exception as exc:
-                print(f"  [warn] adj_factor 失败，返回未复权: {exc}")
+                print(f"  [warn] adj_factor 失败: {exc}")
 
     if df is None or df.empty:
         raise RuntimeError(f"Tushare 未返回数据: {ts_code}")
-
     return _normalize(df, symbol, adjust, "tushare")
 
 
@@ -161,14 +190,12 @@ def _eastmoney_url(symbol: str, market: int, adjust: str = "qfq") -> str:
 
 
 def _parse_klines(payload: dict, symbol: str, adjust: str) -> pd.DataFrame:
-    info = STOCKS[symbol]
     klines = payload.get("data", {}).get("klines") or []
     rows = []
     for line in klines:
         p = line.split(",")
         rows.append(
             {
-                "ts_code": info["ts_code"],
                 "trade_date": p[0],
                 "open": float(p[1]),
                 "close": float(p[2]),
@@ -197,7 +224,6 @@ def fetch_via_eastmoney(symbol: str, adjust: str = "qfq") -> pd.DataFrame:
         resp.raise_for_status()
         return _parse_klines(resp.json(), symbol, adjust)
     except Exception:
-        # Windows 本机兜底
         raw_path = DATA_DIR / f"_raw_{symbol}_{adjust}.json"
         cmd = (
             f'Invoke-WebRequest -Uri "{url}" -UseBasicParsing '
@@ -214,40 +240,53 @@ def fetch_via_eastmoney(symbol: str, adjust: str = "qfq") -> pd.DataFrame:
         return _parse_klines(payload, symbol, adjust)
 
 
-def resolve_source(preferred: str | None = None) -> str:
-    """auto: 有 Token 用 tushare，否则 eastmoney；CI 建议显式设 tushare。"""
+FETCHERS = {
+    "akshare": fetch_via_akshare,
+    "tushare": fetch_via_tushare,
+    "eastmoney": fetch_via_eastmoney,
+}
+
+
+def resolve_source_chain(preferred: str | None = None) -> list[str]:
     source = (preferred or os.environ.get("DATA_SOURCE") or "auto").lower()
     if source == "auto":
-        return "tushare" if _get_tushare_token() else "eastmoney"
-    if source not in ("tushare", "eastmoney"):
+        # CI 默认优先 akshare；有可用 tushare 权限时也可手动指定
+        return ["akshare", "tushare", "eastmoney"]
+    if source not in FETCHERS:
         raise ValueError(f"未知 DATA_SOURCE: {source}")
-    return source
+    # 指定主源后仍保留兜底，提高 CI 成功率
+    rest = [s for s in ("akshare", "tushare", "eastmoney") if s != source]
+    return [source, *rest]
 
 
 def fetch_stock(symbol: str, adjust: str = "qfq", source: str | None = None) -> pd.DataFrame:
-    src = resolve_source(source)
-    if src == "tushare":
-        return fetch_via_tushare(symbol, adjust)
-    return fetch_via_eastmoney(symbol, adjust)
+    chain = resolve_source_chain(source)
+    errors: list[str] = []
+    for src in chain:
+        if src == "tushare" and not _get_tushare_token():
+            errors.append("tushare: 无 Token，跳过")
+            continue
+        try:
+            df = FETCHERS[src](symbol, adjust)
+            print(f"  [ok] {symbol} via {src}")
+            return df
+        except Exception as exc:
+            errors.append(f"{src}: {exc}")
+            print(f"  [fail] {symbol} via {src}: {exc}")
+    raise RuntimeError(f"{symbol} 全部数据源失败:\n" + "\n".join(errors))
 
 
 def fetch_all(adjust: str = "qfq", source: str | None = None) -> dict[str, pd.DataFrame]:
     DATA_DIR.mkdir(parents=True, exist_ok=True)
-    src = resolve_source(source)
-    print(f"数据源: {src}")
-    if src == "tushare" and not _get_tushare_token():
-        raise RuntimeError(
-            "DATA_SOURCE=tushare 但未设置 TUSHARE_TOKEN。"
-            "请在仓库 Settings → Secrets 添加 TUSHARE_TOKEN。"
-        )
+    chain = resolve_source_chain(source)
+    print(f"数据源链: {' -> '.join(chain)}")
 
     result: dict[str, pd.DataFrame] = {}
     errors: list[str] = []
     for i, symbol in enumerate(STOCKS):
         try:
-            df = fetch_stock(symbol, adjust, src)
+            df = fetch_stock(symbol, adjust, source)
             out = DATA_DIR / f"{symbol}_daily.csv"
-            # 看板不依赖 data_source 列；保留兼容列即可
             save_cols = [
                 "ts_code",
                 "trade_date",
@@ -265,11 +304,10 @@ def fetch_all(adjust: str = "qfq", source: str | None = None) -> dict[str, pd.Da
             result[symbol] = df
             print(f"  {STOCKS[symbol]['name']}({symbol}): {len(df)} 行 -> {out.name}")
         except Exception as exc:
-            msg = f"{symbol}: {exc}"
-            errors.append(msg)
-            print(f"  [error] {msg}")
-        if src == "tushare" and i < len(STOCKS) - 1:
-            time.sleep(0.35)  # 避免触发频率限制
+            errors.append(f"{symbol}: {exc}")
+            print(f"  [error] {symbol}: {exc}")
+        if i < len(STOCKS) - 1:
+            time.sleep(0.4)
 
     if not result:
         raise RuntimeError("全部标的取数失败:\n" + "\n".join(errors))

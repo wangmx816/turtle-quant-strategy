@@ -31,20 +31,11 @@ jobs:
       - name: Install dependencies
         run: pip install -r requirements.txt
 
-      - name: Check Tushare token
+      - name: Fetch latest quotes
         env:
+          # 主源 akshare（免费）；Tushare 有权限时会自动兜底尝试
+          DATA_SOURCE: akshare
           TUSHARE_TOKEN: ${{ secrets.TUSHARE_TOKEN }}
-        run: |
-          if [ -z "$TUSHARE_TOKEN" ]; then
-            echo "::error::缺少 Secrets.TUSHARE_TOKEN。请到 Settings → Secrets and variables → Actions 添加。"
-            exit 1
-          fi
-          echo "TUSHARE_TOKEN is set."
-
-      - name: Fetch latest quotes (Tushare)
-        env:
-          TUSHARE_TOKEN: ${{ secrets.TUSHARE_TOKEN }}
-          DATA_SOURCE: tushare
         run: python src/data_fetch.py
 
       - name: Build dashboard outputs

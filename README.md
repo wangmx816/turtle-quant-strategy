@@ -30,20 +30,20 @@
 
 ## 数据源
 
-- **CI / 推荐**：Tushare Pro（需 Token）
-- **本地兜底**：东方财富（无 Token 时自动回退）
+CI 默认使用 **AkShare**（免费，无需 Token）。取数失败时自动尝试 Tushare → 东方财富。
 
-### 配置 GitHub Actions 取数
+| 数据源 | 适用场景 | 说明 |
+|--------|----------|------|
+| akshare | **CI 推荐** | 免费，GitHub Actions 可用 |
+| tushare | 可选 | 需 Token **且**有 `daily` 接口积分权限 |
+| eastmoney | 本地兜底 | 海外 Runner 常被拦截 |
 
-1. 打开仓库 **Settings → Secrets and variables → Actions**
-2. 新建 Secret：`TUSHARE_TOKEN` = 你的 [Tushare](https://tushare.pro/) token
-3. 推送代码后，在 **Actions → Daily Data Update → Run workflow** 手动跑一次
+你当前 Tushare 报错「没有接口(daily)访问权限」——不是 Secret 配错，而是账号积分不够。可继续用 AkShare，不必强依赖 Tushare。
 
-本地也可临时设置：
+本地测试：
 
 ```powershell
-$env:TUSHARE_TOKEN="你的token"
-$env:DATA_SOURCE="tushare"
+$env:DATA_SOURCE="akshare"
 python src/data_fetch.py
 ```
 
