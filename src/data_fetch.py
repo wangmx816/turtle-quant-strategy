@@ -87,21 +87,32 @@ def _get_tushare_token() -> str | None:
 # AkShare（CI 主源）
 # ---------------------------------------------------------------------------
 
-def fetch_via_akshare(symbol: str, adjust: str = "qfq") -> pd.DataFrame:
+def fetch_via_akshare(symbol: str, adjust: str = "qfq", retries: int = 3) -> pd.DataFrame:
     import akshare as ak
 
     adj = "" if adjust == "none" else adjust
     start = START_DATE.strftime("%Y%m%d")
     end = END_DATE.strftime("%Y%m%d")
-    raw = ak.stock_zh_a_hist(
-        symbol=symbol,
-        period="daily",
-        start_date=start,
-        end_date=end,
-        adjust=adj,
-    )
+    last_err: Exception | None = None
+    raw = None
+    for attempt in range(1, retries + 1):
+        try:
+            raw = ak.stock_zh_a_hist(
+                symbol=symbol,
+                period="daily",
+                start_date=start,
+                end_date=end,
+                adjust=adj,
+            )
+            if raw is not None and not raw.empty:
+                break
+            raise RuntimeError(f"akshare 无数据: {symbol}")
+        except Exception as exc:
+            last_err = exc
+            print(f"  [retry] akshare {symbol} 第 {attempt}/{retries} 次失败: {exc}")
+            time.sleep(1.2 * attempt)
     if raw is None or raw.empty:
-        raise RuntimeError(f"akshare 无数据: {symbol}")
+        raise RuntimeError(f"akshare 失败: {symbol}: {last_err}")
 
     colmap = {
         "日期": "trade_date",
