@@ -10,9 +10,9 @@
     "trade_count": 10,
     "stop_loss_count": 10,
     "profit_loss_ratio": 2.96,
-    "benchmark_cumulative": 155.14,
-    "benchmark_annualized": 66.13,
-    "excess_return": -70.06,
+    "benchmark_cumulative": 145.4,
+    "benchmark_annualized": 62.66,
+    "excess_return": -60.32,
     "final_net_value": 1.8508,
     "max_dd_start": "2026-01-12",
     "max_dd_end": "2026-07-08"
