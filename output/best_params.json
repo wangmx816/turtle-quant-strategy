@@ -7,11 +7,11 @@
     "max_drawdown": -19.25
   },
   "600031": {
-    "best_entry": 40,
+    "best_entry": 30,
     "best_exit": 5,
-    "sharpe_ratio": 0.647,
-    "annualized_return": 11.66,
-    "max_drawdown": -10.42
+    "sharpe_ratio": 0.62,
+    "annualized_return": 11.6,
+    "max_drawdown": -13.99
   },
   "000425": {
     "best_entry": 10,
