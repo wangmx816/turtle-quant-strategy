@@ -1,17 +1,17 @@
 {
   "002202": {
-    "best_entry": 40,
+    "best_entry": 10,
     "best_exit": 5,
-    "sharpe_ratio": 1.366,
-    "annualized_return": 46.22,
-    "max_drawdown": -19.25
+    "sharpe_ratio": 1.306,
+    "annualized_return": 57.29,
+    "max_drawdown": -25.0
   },
   "600031": {
     "best_entry": 30,
     "best_exit": 5,
-    "sharpe_ratio": 0.62,
-    "annualized_return": 11.6,
-    "max_drawdown": -13.99
+    "sharpe_ratio": 0.585,
+    "annualized_return": 11.04,
+    "max_drawdown": -14.83
   },
   "000425": {
     "best_entry": 10,
