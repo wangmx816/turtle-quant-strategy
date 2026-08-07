@@ -2,9 +2,9 @@
   "002202": {
     "best_entry": 10,
     "best_exit": 5,
-    "sharpe_ratio": 1.406,
-    "annualized_return": 63.57,
-    "max_drawdown": -25.0
+    "sharpe_ratio": 1.484,
+    "annualized_return": 69.89,
+    "max_drawdown": -25.43
   },
   "600031": {
     "best_entry": 30,
