@@ -3,16 +3,16 @@
   "name": "金风科技",
   "default_metrics": {
     "cumulative_return": 75.81,
-    "annualized_return": 35.77,
+    "annualized_return": 35.95,
     "max_drawdown": -40.17,
-    "sharpe_ratio": 0.967,
+    "sharpe_ratio": 0.969,
     "win_rate": 50.0,
     "trade_count": 10,
     "stop_loss_count": 10,
     "profit_loss_ratio": 2.82,
-    "benchmark_cumulative": 170.47,
-    "benchmark_annualized": 71.47,
-    "excess_return": -94.66,
+    "benchmark_cumulative": 176.18,
+    "benchmark_annualized": 73.83,
+    "excess_return": -100.37,
     "final_net_value": 1.7581,
     "max_dd_start": "2026-01-12",
     "max_dd_end": "2026-07-08"
@@ -20,8 +20,8 @@
   "best_params": {
     "best_entry": 10,
     "best_exit": 5,
-    "sharpe_ratio": 1.484,
-    "annualized_return": 69.89,
+    "sharpe_ratio": 1.48,
+    "annualized_return": 69.77,
     "max_drawdown": -25.43
   }
 }
