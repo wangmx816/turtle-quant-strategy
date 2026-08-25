@@ -2,26 +2,26 @@
   "symbol": "600207",
   "name": "安彩高科",
   "default_metrics": {
-    "cumulative_return": 10.82,
-    "annualized_return": 5.72,
+    "cumulative_return": 3.06,
+    "annualized_return": 1.65,
     "max_drawdown": -23.53,
-    "sharpe_ratio": 0.274,
+    "sharpe_ratio": 0.16,
     "win_rate": 55.6,
     "trade_count": 9,
     "stop_loss_count": 7,
-    "profit_loss_ratio": 1.3,
-    "benchmark_cumulative": 26.24,
-    "benchmark_annualized": 13.46,
-    "excess_return": -15.43,
-    "final_net_value": 1.1082,
+    "profit_loss_ratio": 0.96,
+    "benchmark_cumulative": 9.7,
+    "benchmark_annualized": 5.16,
+    "excess_return": -6.65,
+    "final_net_value": 1.0306,
     "max_dd_start": "2024-10-08",
     "max_dd_end": "2025-07-01"
   },
   "best_params": {
     "best_entry": 20,
-    "best_exit": 5,
-    "sharpe_ratio": 0.288,
-    "annualized_return": 6.25,
-    "max_drawdown": -22.83
+    "best_exit": 15,
+    "sharpe_ratio": 0.215,
+    "annualized_return": 3.58,
+    "max_drawdown": -23.7
   }
 }
