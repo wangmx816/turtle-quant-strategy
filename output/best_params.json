@@ -9,8 +9,8 @@
   "600031": {
     "best_entry": 30,
     "best_exit": 5,
-    "sharpe_ratio": 0.138,
-    "annualized_return": 3.0,
+    "sharpe_ratio": 0.137,
+    "annualized_return": 2.99,
     "max_drawdown": -19.72
   },
   "000425": {
