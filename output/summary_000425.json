@@ -2,26 +2,26 @@
   "symbol": "000425",
   "name": "徐工机械",
   "default_metrics": {
-    "cumulative_return": -9.0,
-    "annualized_return": -4.98,
+    "cumulative_return": -0.13,
+    "annualized_return": -0.07,
     "max_drawdown": -27.97,
-    "sharpe_ratio": -0.256,
-    "win_rate": 37.5,
-    "trade_count": 8,
+    "sharpe_ratio": -0.007,
+    "win_rate": 42.9,
+    "trade_count": 7,
     "stop_loss_count": 7,
-    "profit_loss_ratio": 1.42,
-    "benchmark_cumulative": -9.32,
-    "benchmark_annualized": -5.16,
-    "excess_return": 0.32,
-    "final_net_value": 0.91,
+    "profit_loss_ratio": 1.49,
+    "benchmark_cumulative": -6.11,
+    "benchmark_annualized": -3.37,
+    "excess_return": 5.99,
+    "final_net_value": 0.9987,
     "max_dd_start": "2025-10-16",
     "max_dd_end": "2026-05-18"
   },
   "best_params": {
-    "best_entry": 60,
-    "best_exit": 5,
-    "sharpe_ratio": -0.143,
-    "annualized_return": -1.07,
-    "max_drawdown": -15.93
+    "best_entry": 20,
+    "best_exit": 10,
+    "sharpe_ratio": -0.007,
+    "annualized_return": -0.07,
+    "max_drawdown": -27.97
   }
 }
