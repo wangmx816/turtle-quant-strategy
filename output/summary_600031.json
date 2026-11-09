@@ -2,26 +2,26 @@
   "symbol": "600031",
   "name": "三一重工",
   "default_metrics": {
-    "cumulative_return": -8.78,
-    "annualized_return": -4.85,
+    "cumulative_return": -11.35,
+    "annualized_return": -6.33,
     "max_drawdown": -29.65,
-    "sharpe_ratio": -0.343,
+    "sharpe_ratio": -0.432,
     "win_rate": 36.4,
     "trade_count": 11,
     "stop_loss_count": 9,
-    "profit_loss_ratio": 1.37,
-    "benchmark_cumulative": 21.42,
-    "benchmark_annualized": 11.07,
-    "excess_return": -30.2,
-    "final_net_value": 0.9122,
+    "profit_loss_ratio": 1.21,
+    "benchmark_cumulative": 18.36,
+    "benchmark_annualized": 9.59,
+    "excess_return": -29.72,
+    "final_net_value": 0.8865,
     "max_dd_start": "2025-07-22",
     "max_dd_end": "2026-11-04"
   },
   "best_params": {
     "best_entry": 30,
     "best_exit": 5,
-    "sharpe_ratio": 0.137,
-    "annualized_return": 2.99,
+    "sharpe_ratio": 0.138,
+    "annualized_return": 3.0,
     "max_drawdown": -19.72
   }
 }
