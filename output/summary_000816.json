@@ -10,9 +10,9 @@
     "trade_count": 7,
     "stop_loss_count": 7,
     "profit_loss_ratio": 1.2,
-    "benchmark_cumulative": -13.08,
-    "benchmark_annualized": -7.32,
-    "excess_return": 8.43,
+    "benchmark_cumulative": -12.03,
+    "benchmark_annualized": -6.69,
+    "excess_return": 7.37,
     "final_net_value": 0.9534,
     "max_dd_start": "2025-02-25",
     "max_dd_end": "2026-08-04"
@@ -20,8 +20,8 @@
   "best_params": {
     "best_entry": 10,
     "best_exit": 5,
-    "sharpe_ratio": 0.358,
-    "annualized_return": 8.58,
+    "sharpe_ratio": 0.133,
+    "annualized_return": 1.79,
     "max_drawdown": -29.98
   }
 }
